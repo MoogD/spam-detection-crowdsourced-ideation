@@ -1,0 +1,7 @@
+ID,CHALLENGE,CREATED,DESCRIPTION,HIT_ID,STATUS,WORKER_ID,LENGTH,SPAM,TRIGGERED
+f2c2bcc5dc3c4ef7b63323a0293a1858,cscw19-1-imageAndDescription-label,2019-03-13 13:31:47.489,foo,debug,unreviewed,max,3,spam,"Charcount, Wordcount, bayes"
+8b9b143a26394170b0dc40c495ac7d42,cscw19-1-imageAndDescription-label,2019-03-22 16:36:18.575,good,3URJ6VVYUPULHRZE3J0QQ2WOH85O47,unreviewed,A1PC5HFTBIR2QA,4,spam,"Charcount, Wordcount"
+63f9c93659fe4c1da30862ecb6701d73,cscw19-1-imageAndDescription-label,2019-03-12 16:19:12.91,test,debug,unreviewed,max,4,spam,"Charcount, Wordcount, bayes"
+2102c24008d14b6b9b2a49c3a1da18d3,cscw19-1-description-label,2019-03-19 11:59:29.062,clean,3IJ95K7NDXJJBMSMX52EK2TMH19NGA,unreviewed,A1IBQ7MUUTWLS9,5,spam,"Charcount, Wordcount, bayes"
+aeee9a44ca7743e9844e9489ba5a9d47,cscw19-1-image-label,2019-03-23 23:05:31.933,GREAT,3L7SUC0TTU1GI0W172YBMVH65WWM0W,unreviewed,AMJ9AF7IG3E5T,5,spam,"Charcount, Wordcount, Uppercase, bayes"
+00b553fcc0ca4615a801bdd7da892375,cscw19-1-imageAndDescription-label,2019-03-12 10:59:33.396,Shoes,322ZSN9Z5GR1UJ4MZ0J1X2KYC354T4,unreviewed,A1053TFZ0N36YJ,5,spam,"Charcount, Wordcount"

@@ -1,0 +1,48 @@
+ID,DESCRIPTION,STATUS,CREATED,WORKER_ID,TRIGGERED,PREDICTION
+a767233fcb444496b2efd99c4e597b0b,a way to display snapchat filters on your face,usable,2019-07-22 19:10:57.787,A1DY3EW6Q0B5K5,['without verb or adj unigram'],Spam
+1e732e262916402ca4a091ac4b8c2c68,"
+add images to clothes. ",usable,2019-07-22 19:11:29.641,A1DY3EW6Q0B5K5,['without verb or adj'],Spam
+c596ab86e26a4c7faef997f2580fa38e,post information about businesses on this fabric,usable,2019-07-22 19:16:31.86,A1DY3EW6Q0B5K5,"['without verb or adj', 'without verb or adj unigram']",Spam
+2b0291df2b8a4b69b858eb1a07cd89f6,player info on sports uniforms during games,usable,2019-07-22 19:19:05.411,A1DY3EW6Q0B5K5,"['without verb or adj', 'without verb or adj unigram']",Spam
+2abf5b4f431a433685ec786e5e4473f1,Help hunters scout the location of the animals they are looking to hunt for.,usable,2019-07-24 07:10:27.723,A1EN3FW93BSXQQ,['definition'],Spam
+10fe3bc64b4b4abfb6a1874c45c0c97b,"It could be used for Halloween masks. You could buy one and turn it into anything you want: werewolf, witch, vampire, Donald Trump...",usable,2019-07-24 12:27:08.751,A2WWYVKGZZXBOB,['containsName'],Spam
+c675d917146e4e549530eef9368d30c8,use as cellphone covers to easily change,usable,2019-07-24 15:25:22.578,AQP4PHYDXRBPI,['without verb or adj unigram'],Spam
+5bccbad22b4e47068da27e54a42700e0,use on wall to excersize and have a timer,usable,2019-07-24 15:25:55.447,AQP4PHYDXRBPI,['without verb or adj unigram'],Spam
+112d8fe2906245c481cba0df78756c8d,Track workers movements on the job.,usable,2019-07-24 18:47:56.294,A3IQ9V1JSB2RJO,"['without verb or adj', 'without verb or adj unigram']",Spam
+76f9a8d991784714a24c09e9e2218792,Help train a golfer to use proper swing techniques.,usable,2019-07-24 18:48:29.732,A3IQ9V1JSB2RJO,['definition'],Spam
+b40b0f9050204c61a7680db1af091763,Evaluate an athlete's performance.,usable,2019-07-24 18:48:51.087,A3IQ9V1JSB2RJO,['without verb or adj unigram'],Spam
+29f572da7e844be8b7f310875ce760b0,"
+Bedsheets for kids that can be updated as their hobbies change. If they like Spiderman one year they can be Spiderman themed. Then the next year if they hate Spiderman, but now love Legos you could switch it to be Lego themed.",usable,2019-07-24 22:40:31.926,A1AKL5YH9NLD2V,['containsName'],Spam
+a24f95ea69204a42aede3e97a0a9ea0d,Automated rehab nurse,usable,2019-07-25 17:27:37.379,A35D31QHYQUF9V,['without verb or adj unigram'],Spam
+3fd4016366014af7bf3502577c0384cd,robotic shelf stocker,usable,2019-07-25 17:27:53.67,A35D31QHYQUF9V,['without verb or adj unigram'],Spam
+aa4b18ae4ac0454e8e39d864ae02fe21,Video game sensor,usable,2019-07-25 17:33:20.937,A35D31QHYQUF9V,"['without verb or adj', 'without verb or adj unigram']",Spam
+492874b66f284a048e62dec410f41196,Theater screen,usable,2019-07-25 17:38:43.03,A35D31QHYQUF9V,"['Charcount', 'without verb or adj', 'without verb or adj unigram']",Spam
+0821bc1a633f474ca20ac5e18435b12f,Phone Screen,usable,2019-07-25 17:38:48.559,A35D31QHYQUF9V,"['Charcount', 'without verb or adj', 'without verb or adj unigram']",Spam
+e5475cb6f8fc40a598133cd7f9fbedaa,Wall display,usable,2019-07-25 17:38:55.832,A35D31QHYQUF9V,"['Charcount', 'without verb or adj', 'without verb or adj unigram']",Spam
+9bf4c6a8dd944973a6c67e1eb6f88b73,Billboard,usable,2019-07-25 17:39:12.752,A35D31QHYQUF9V,"['Charcount', 'Wordcount', 'without verb or adj', 'without verb or adj unigram']",Spam
+f34ff2d456054067bdc16cc000bcabff,Touchscreen wallpaper,usable,2019-07-25 17:42:09.516,A35D31QHYQUF9V,"['without verb or adj', 'without verb or adj unigram']",Spam
+b8ad6e52cea64ff5a74ae2cdbae690db,"Video quilts
+",usable,2019-07-25 17:43:38.707,A35D31QHYQUF9V,"['Charcount', 'without verb or adj', 'without verb or adj unigram']",Spam
+daf96318bed84faf86e0d0e6c24d04fa,Clothing with video displays,usable,2019-07-25 17:45:52.685,A35D31QHYQUF9V,['without verb or adj unigram'],Spam
+fb916d083bc745919eb23521a788e85c,"
+Video wrapping paper",usable,2019-07-25 17:46:39.103,A35D31QHYQUF9V,['without verb or adj unigram'],Spam
+9f3d4eff053342a4a2e0dbfa6bff40a2,Use as a movie screen in a tent,usable,2019-07-25 22:02:35.808,A20X14OMRL0YPZ,['without verb or adj'],Spam
+c7d1defbbb7c4843ba761d067f1273d2,Shoes that change design with the touch of a finger.,usable,2019-07-26 22:41:59.799,A3FYWUZK52IC2J,['without verb or adj unigram'],Spam
+52078568111c4461b88e3254c8b45c17,Purses that change design.,usable,2019-07-26 22:42:08.059,A3FYWUZK52IC2J,['without verb or adj unigram'],Spam
+cbffe951c46e4abcbc1d8c3bfe64851c,Hats that change design.,usable,2019-07-26 22:43:43.827,A3FYWUZK52IC2J,['without verb or adj unigram'],Spam
+3ec69b23c3084aacb613a428c16f4626,Socks that change design.,usable,2019-07-26 22:43:49.347,A3FYWUZK52IC2J,['without verb or adj unigram'],Spam
+316918e4ea97482f930f0b2d647496ac,Lingerie that changes design.,usable,2019-07-26 22:44:00.814,A3FYWUZK52IC2J,['without verb or adj unigram'],Spam
+279465f018de46b1b91d4318bfb4282e,"
+",usable,2019-07-27 00:02:52.732,A3HE29W5IDR394,"['Charcount', 'Wordcount', 'without noun', 'without verb or adj', 'without noun unigram', 'without verb or adj unigram']",Spam
+49401542ba084cf8809f5966157d3fff,"
+",usable,2019-07-27 00:13:45.623,A3HE29W5IDR394,"['Charcount', 'Wordcount', 'without noun', 'without verb or adj', 'without noun unigram', 'without verb or adj unigram']",Spam
+abd6f39771c7458da1cdb107814cce69,use it to track the movement of animals.,usable,2019-07-28 15:01:57.079,A2DNLHS1RSTF5R,['without verb or adj unigram'],Spam
+c7546d4b8ba940b99cd9148ee04ebd7b,Home security cameras,usable,2019-07-28 20:58:15.439,A3LPHYONE222OY,"['without verb or adj', 'without verb or adj unigram']",Spam
+6409113e0e854d598a567cb2d3b047bf,"Observation for livestock, possibly pet breaders",usable,2019-07-28 21:01:43.833,A3LPHYONE222OY,['without verb or adj unigram'],Spam
+4835a96630af48cda4923782042c4138,tHIS TECHNOLOGY COULD BE USED TO IDENTIFY CRIMINALS ON VIDEO SURVILLENCE. THE MOVEMENT CAN BE COMPARED TO DETAINED IMMATES AND SUSPECTS,usable,2019-07-28 23:14:17.829,A2N0RWR3JTVBM0,"['without verb or adj', 'without verb or adj unigram']",Spam
+5076f75a45bb4772b76d7ee142052ea0,THIS TECHNOLOGY COULD BE USED AS A HOLOGRAM TO TEACH DANCERS WHO WANT TO LEARN OR IMPROVE. THE MOVEMENTS CAN BE COPIED FROM ELITE PROFFESONAL DANCERS AND TAUGHT TO DANCE STUDENTS.,usable,2019-07-28 23:16:17.751,A2N0RWR3JTVBM0,"['Uppercase', 'without verb or adj unigram']",Spam
+53824b224dd0459cb14590d798b4ebf7,This could be used to make some type of Touched based games on your clothing. Like playing the first level of Mario Bros on your 2 Shirt.,usable,2019-07-29 00:50:17.656,A11FRLH5KWRLBV,['containsName'],Spam
+6f8ff8d20265410287e6d84b1f0a9992,A dog collar that displays the phone number of the owner.,usable,2019-07-29 01:02:42.276,A2PXJTMWGUE5DC,['without verb or adj unigram'],Spam
+32e7076b53624e6f8fdb4f2aba571da6,This could be a spectacular red carpet designer gown. Something Lady Gaga would be happy to wear. In the mainstream it could be used to customize a dress. Change it's fabric pattern and color from one's smart phone. Users can also easily add decorations such as jewels or decorative buttons.,usable,2019-07-29 19:04:32.8,A27353U3GOR77W,['containsName'],Spam
+9c21f4574e3747f4a4dcc762dbb56736,Help improve the VR world and gaming experience. Possibly even enhance laser tag type gaming.,usable,2019-07-30 00:41:15.837,AVJUIF9QHQRY8,['definition'],Spam
+c99242cb40b54e4188d1558186ffdb52,Play movies on your blanket at bed time in case you don't have a TV in your bedroom.,usable,2019-07-30 01:31:25.273,AHDW0M4017Z8K,['without verb or adj unigram'],Spam

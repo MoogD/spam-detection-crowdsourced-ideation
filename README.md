@@ -1,7 +1,13 @@
 # spam-detection-crowdsourced-ideation
+
+# Requirements
+Will be updated soon
+
 # Usage
 To use the Spam detection execute the spamdetection.py file with a path to a csv or xml file with ideas:
-``` python spamdetection.py "path" [-h] [-t, --train] [--challenge] ["Challenge"] ```
+``` 
+python spamdetection.py "path" [-h] [-t, --train] [--challenge] ["Challenge"]
+```
 
 Use the option `-t` or `--train` to train the system.
 Else the System will classify the ideas.

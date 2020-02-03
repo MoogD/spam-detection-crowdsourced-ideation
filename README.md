@@ -31,4 +31,22 @@ You can use the System to classify ideas saved in xml or csv files.
 </gi2mo:Idea>
 ```
 
+If you want to use the trainingsoption (currently just working with csv files) the ideas need an additional fiel for the actual classification. This field can be called "STATUS" or "SPAM" ("STATUS" will be prioritized if both fields are available).
+The value of the "STATUS" field needs to be "unusable" for spam-ideas or usable for ham-ideas.
+The value of the "SPAM" field needs to be "spam" or "ham". Other values in these fields can cause false classifications.
+ 
 # Output
+If you use the trainingsoption, the system will train models for the given challenge that will automatically be used if you classify ideas from the same challenge. 
+
+If you use the system for classification, it will create a new file at the same path as the given file.
+The new file will contain the same content plus additional fields/attributes for the results of the classification.
+
+**CSV:** For csv files there will be three more fields added: "DUPLICATE" (containing "yes" or "no"), "SPAMPROB" (value between 0.00 and 1.00) and "TRIGGERED" (containing a list of Filters that indicate that the idea is spam)
+
+**XML:** For xml files there will be two more attributes added: "Duplicat" (containing if the idea is a duplicat or not) and "Spamsystem" (containing the spamprobability and the triggered filters)
+```
+<Duplicate Duplicate="no" />
+<Spamsystem Spamprob="0.81" Triggered="['1-WordBayes: 1.0', '5-WordBayes: 1.0', 'SentenceEmbedding: 0.5918028950691223', 'linearClassifier: 0.6550258427083513', 'containsName']" />
+```
+
+

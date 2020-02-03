@@ -1,19 +1,15 @@
 from Helper import stringHelper
+import xml.etree.ElementTree as ET
 from Helper import importDataHelper
 import time
 import variables
-######Todo Edit distance
-###### ToDO levenshtein distance
-###### Todo USE instead of LSA
 
 
 # simple check for duplicate (find ideas with the same wordvector)
-# returns (Bool, wordlist, ideamatrix)
+# returns (Bool, wordlist)
 # Bool = True for duplicates
-# wordlist = list of strings containing all words that were used in any idea
-# ideamatrix = list of lists. Each List represents one idea as a list of ints with [i] = x means wordlist[i] was x times in idea
+# wordlist = dictionary of string: with list of ints containing all words and the number of times it was used in the ideas were used in any idea
 def isduplicate(wordlist, idea):
-    #resultsvec = stringHelper.getwordvec(wordlist, idea)
     # update matrix and return new matrix and wordlist, if there are new words in the idea
     ideawords = [word.lower() for word in stringHelper.getwordlist(idea)]
     cond = True
@@ -43,39 +39,50 @@ def isduplicate(wordlist, idea):
 
 
 
-def filterduplikates(idealist, datapath=None, idealist2=None):
+def filterduplikates(idealist, type, idealist2=None):
     wordlist = {}
-    #ideamatrix = []
-    duplicatelist = []
-    newlist = []
-
     numberduplicates = 0
     nonduplicate = 0
-    start = time.process_time_ns()
     if idealist2 is not None:
-        for row in idealist2:
-            # duplicateresults = isduplicate(wordlist, ideamatrix, row['DESCRIPTION'])
-            duplicateresults = isduplicate(wordlist, row['DESCRIPTION'])
+        if type == "xml":
+            ideas2 = idealist2.getroot()
+        else:
+            ideas2 = idealist
+        for idea in ideas2:
+            if type == "xml":
+                for att in idea:
+                    if att.tag == "{http://purl.org/gi2mo/ns#}content":
+                        description = att.text
+            else:
+                description = idea["DESCRIPTION"]
+            duplicateresults = isduplicate(wordlist, description)
             wordlist = duplicateresults[1]
-            # ideamatrix = duplicateresults[2]
-    for row in idealist:
-        row['TRIGGERED'] = []
-        # duplicateresults = isduplicate(wordlist, ideamatrix, row['DESCRIPTION'])
-        duplicateresults = isduplicate(wordlist, row['DESCRIPTION'])
+    if type == "xml":
+        ideas = idealist.getroot()
+    else:
+        ideas = idealist
+    for idea in ideas:
+        if type == "xml":
+            for att in idea:
+                if att.tag == "{http://purl.org/gi2mo/ns#}content":
+                    description = att.text
+        else:
+            description = idea["DESCRIPTION"]
+        duplicateresults = isduplicate(wordlist, description)
         if duplicateresults[0]:
             numberduplicates += 1
-            row['TRIGGERED'].append("duplicate")
-            duplicatelist.append(row)
+            if type == "xml":
+                ET.SubElement(idea, "Duplicate", {"Duplicate": "yes"})
+            else:
+                idea["DUPLICATE"] = "yes"
         else:
             nonduplicate += 1
-            newlist.append(row)
+            if type == "xml":
+                ET.SubElement(idea, "Duplicate", {"Duplicate": "no"})
+            else:
+                idea["DUPLICATE"] = "no"
         wordlist = duplicateresults[1]
-        # ideamatrix = duplicateresults[2]
-    duration = time.process_time_ns() - start
     # evaluate results:
-    print("Duration duplicates: ", duration / 1000000000, "seconds")
     print("Duplicates: ", numberduplicates)
     print("Non-Duplicate Ideas: ", nonduplicate)
-#    if len(duplicatelist) > 0 and datapath is not None:
-#        importDataHelper.writecsvfile(datapath, duplicatelist[0].keys(), duplicatelist)
-    return newlist
+    return idealist

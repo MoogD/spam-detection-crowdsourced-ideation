@@ -17,7 +17,7 @@ charcount = 15
 wordcount = 2
 challenges = ["TCO", "bionicRadar", "fabricDisplay"]
 
-def main():
+def spamdetection():
     parser = argparse.ArgumentParser()
     parser.add_argument("path", help="Path to a csv or xml file with ideas")
 
@@ -99,10 +99,6 @@ def train(idealist, challenge=None):
                 data["Spam"].append(0)
         print("Ideas classified by Filtersystem!")
         linClass, coef = linearClassifier.train_linear_classifier(features)
-######## Test classify function
-        # wordprobs = bayes.gettokenprobs(challenge=challenge)
-        # comwordprobs = complexBayes.gettokenprobs(challenge=challenge)
-########
         path = variables.classpath + "/" + challenge
         if os.path.exists(variables.classpath + "/" + challenge):
             with open((variables.classpath + "/" + challenge + "/linClassAttributes.txt"), "wb") as fp:  # Pickling
@@ -115,112 +111,69 @@ def train(idealist, challenge=None):
                 useest = USEClassifier.train_classifier_idealist(pd.DataFrame(data), path)
             except OSError:
                 print("Creation of the directory %s failed" % (variables.classpath + challenge))
-            # if path is not None:
-            #     with open((variables.classpath + "/" + challenge + "/linClassAttributes.txt"), "wb") as fp:  # Pickling
-            #         pickle.dump(linClassdict, fp)
-######## Test classify function
-        # predbay = []
-        # predcombay = []
-        # predUSE = []
-        # predUSEprob = []
-        # predLin = []
-        # predLinprob = []
-        # for idea in idealist:
-        #     idea['TRIGGERED'] = idea.get("TRIGGERED", [])
-        #     predbay.append(bayes.classify(idea["DESCRIPTION"], wordprobs))
-        #     predcombay.append(complexBayes.classify(idea["DESCRIPTION"], comwordprobs))
-        #     # data = {}
-        #     # data["DESCRIPTION"].append(idea["DESCRIPTION"])
-        #     # if "unusable" in idea.get("STATUS", ""):
-        #     #     data["SPAM"].append(1)
-        #     # elif "usable" in idea.get("STATUS", ""):
-        #     #     data["SPAM"].append(0)
-        #     # elif "spam" in idea.get("SPAM", ""):
-        #     #     data["SPAM"].append(1)
-        #     # else:
-        #     #     data["SPAM"].append(0)
-        #     x = USEClassifier.classify(useest, {"DESCRIPTION": idea["DESCRIPTION"]})
-        #     predUSE.append(x[0])
-        #     predUSEprob.append(x[1])
-        #     # idea, ideadata = spamFilter.classify_and_get_idea(idea, unigram_tagger, st)
-        #     # features = {}
-        #     # for ideakey in ideadata.keys():
-        #     #     if ideadata[ideakey] == 1:
-        #     #         features[ideakey] = features.get(ideakey, [])
-        #     #         features[ideakey].append(1)
-        #     #     else:
-        #     #         features[ideakey] = features.get(ideakey, [])
-        #     #         features[ideakey].append(0)
-        #     #     ideadata[ideakey] = [ideadata[ideakey]]
-        #     # x = linearClassifier.classify(pd.DataFrame(ideadata), linClass)
-        #     # predLin.append(x[0])
-        #     # predLinprob.append(x[1])
-        # return predbay, predcombay, predUSE, predUSEprob, predLin, predLinprob
 
-
-def classify(idealist, challenge=None, type=None):
-    print(type)
-    if challenge is not None:
-        wordprobs = bayes.gettokenprobs(challenge=challenge)
-        comwordprobs = complexBayes.gettokenprobs(challenge=challenge)
-        path = variables.classpath + "/" + challenge
-        est = USEClassifier.load_estimator(path)
-        with open((variables.classpath + "/" + challenge + "/linClassAttributes.txt"), "rb") as fp:  # Pickling
-            linClass = pickle.load(fp)
-        unigram_tagger, st = spamFilter.prepare_tagger()
+def classify(idealist, challenge, type):
+    wordprobs = bayes.gettokenprobs(challenge=challenge)
+    comwordprobs = complexBayes.gettokenprobs(challenge=challenge)
+    path = variables.classpath + "/" + challenge
+    est = USEClassifier.load_estimator(path)
+    with open((variables.classpath + "/" + challenge + "/linClassAttributes.txt"), "rb") as fp:  # Pickling
+        linClass = pickle.load(fp)
+    unigram_tagger, st = spamFilter.prepare_tagger()
+    idealist = duplicateDetection.filterduplikates(idealist, type)
+    if type == "xml":
+        ideas = idealist.getroot()
+    else:
+        ideas = idealist
+    for idea in ideas:
         if type == "xml":
-            ideas = idealist.getroot()
+            for att in idea:
+                if att.tag == "{http://purl.org/gi2mo/ns#}content":
+                    description = att.text
+                    triggered = []
         else:
-            ideas = idealist
-        for idea in ideas:
-            if type == "xml":
-                for att in idea:
-                    if att.tag == "{http://purl.org/gi2mo/ns#}content":
-                        description = att.text
-                        triggered = []
+            triggered = idea.get("TRIGGERED", [])
+            description = idea["DESCRIPTION"]
+        prediction = 0.0
+        bay = bayes.classify(description, wordprobs)
+        combay = complexBayes.classify(description, comwordprobs)
+        classcount = []
+        if (bay >= 0.9):
+            triggered.append("1-WordBayes: {}".format(bay))
+            classcount.append(bay)
+        if combay >= 0.9:
+            triggered.append("5-WordBayes: {}".format(combay))
+            classcount.append(combay)
+        use = USEClassifier.classify(est, {"DESCRIPTION": description})
+        if (use[0]== 1):
+            triggered.append("SentenceEmbedding: {}".format(use[1]))
+            classcount.append(use[1])
+        merke, filter, ideadata = spamFilter.classify_and_get_idea(description, unigram_tagger, st)
+        features = {}
+        for ideakey in ideadata.keys():
+            if ideadata[ideakey] == 1:
+                features[ideakey] = features.get(ideakey, [])
+                features[ideakey].append(1)
             else:
-                triggered = idea.get("TRIGGERED", [])
-                description = idea["DESCRIPTION"]
-            prediction = 0.0
-            bay = bayes.classify(description, wordprobs)
-            combay = complexBayes.classify(description, comwordprobs)
-            classcount = []
-            if (bay >= 0.9):
-                triggered.append("1-WordBayes: {}".format(bay))
-                classcount.append(bay)
-            if combay >= 0.9:
-                triggered.append("5-WordBayes: {}".format(combay))
-                classcount.append(combay)
-            use = USEClassifier.classify(est, {"DESCRIPTION": description})
-            if (use[0]== 1):
-                triggered.append("SentenceEmbedding: {}".format(use[1]))
-                classcount.append(use[1])
-            merke, filter, ideadata = spamFilter.classify_and_get_idea(description, unigram_tagger, st)
-            features = {}
-            for ideakey in ideadata.keys():
-                if ideadata[ideakey] == 1:
-                    features[ideakey] = features.get(ideakey, [])
-                    features[ideakey].append(1)
-                else:
-                    features[ideakey] = features.get(ideakey, [])
-                    features[ideakey].append(0)
-                ideadata[ideakey] = [ideadata[ideakey]]
-            lin = linearClassifier.classify(pd.DataFrame(ideadata), linClass)
-            if (lin[0] == 1):
-                triggered.append("linearClassifier: {}".format(lin[1]))
-                classcount.append(lin[1])
-            triggered += filter
-            if len(classcount) > 1:
-                prediction = sum(classcount)/len(classcount)
-            if type == "xml":
-                ET.SubElement(idea, "Spamsystem", {"Spamprob": str(round(prediction, 2)),"Triggered": triggered})
-            else:
-                idea["SPAMPROB"] = round(prediction, 2)
-                idea["TRIGGERED"] = triggered
+                features[ideakey] = features.get(ideakey, [])
+                features[ideakey].append(0)
+            ideadata[ideakey] = [ideadata[ideakey]]
+        lin = linearClassifier.classify(pd.DataFrame(ideadata), linClass)
+        if (lin[0] == 1):
+            triggered.append("linearClassifier: {}".format(lin[1]))
+            classcount.append(lin[1])
+        triggered += filter
+        if len(classcount) > 1:
+            prediction = sum(classcount)/len(classcount)
         if type == "xml":
-            return idealist
+            ET.SubElement(idea, "Spamsystem", {"Spamprob": str(round(prediction, 2)),"Triggered": triggered})
         else:
-            return ideas
+            idea["SPAMPROB"] = round(prediction, 2)
+            idea["TRIGGERED"] = triggered
+    if type == "xml":
+        return idealist
+    else:
+        return ideas
 
 
 
@@ -358,4 +311,4 @@ def test():
                                       idealistchallenge[key][0].keys(), idealistchallenge[key])
 
 if __name__ == '__main__':
-    main()
+    spamdetection()

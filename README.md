@@ -43,7 +43,7 @@ The new file will contain the same content plus additional fields/attributes for
 
 **CSV:** For csv files there will be three more fields added: "DUPLICATE" (containing "yes" or "no"), "SPAMPROB" (value between 0.00 and 1.00) and "TRIGGERED" (containing a list of Filters that indicate that the idea is spam)
 
-**XML:** For xml files there will be two more attributes added: "Duplicat" (containing if the idea is a duplicat or not) and "Spamsystem" (containing the spamprobability and the triggered filters)
+**XML:** For xml files there will be two more attributes added: "Duplicat" (containing if the idea is a duplicat or not) and "Spamsystem" (containing the spamprobability and the triggered filters). E.g:
 ```
 <Duplicate Duplicate="no" />
 <Spamsystem Spamprob="0.81" Triggered="['1-WordBayes: 1.0', '5-WordBayes: 1.0', 'SentenceEmbedding: 0.5918028950691223', 'linearClassifier: 0.6550258427083513', 'containsName']" />

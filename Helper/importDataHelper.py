@@ -10,7 +10,8 @@ def readcsvdata(datapath):
 
 def readxmldata(datapath):
     tree = ET.parse(datapath)
-    return converttreetodict(tree)
+#    return converttreetodict(tree)
+    return ET.parse(datapath)
 
 def converttreetodict(tree):
     root = tree.getroot()

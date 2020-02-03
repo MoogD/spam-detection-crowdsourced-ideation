@@ -9,168 +9,6 @@ from sklearn.model_selection import train_test_split
 import variables
 import spamFilter
 
-
-def evaluate_system_use(X_train, X_test, challenge=None, dups=False, plotname=None):
-    data = {"DESCRIPTION": [], "Spam": []}
-    for idea in X_train:
-        data["DESCRIPTION"].append(idea["DESCRIPTION"])
-        if idea["STATUS"] == "unusable":
-            data["Spam"].append(1)
-        elif idea["STATUS"] == "usable":
-            data["Spam"].append(0)
-        elif "spam" in idea["SPAM"]:
-            data["Spam"].append(1)
-        else:
-            data["Spam"].append(0)
-
-    print("prepared")
-    if dups:
-        useest = USEClassifier.train_classifier_idealist_use(pd.DataFrame(data),
-                                                         "Data/firstTestrun/KlassifikatorData/" + plotname + "/Dups/")
-    else:
-        useest = USEClassifier.train_classifier_idealist_use(pd.DataFrame(data), "Data/firstTestrun/KlassifikatorData/" + plotname + "/")
-
-
-
-    actual = []
-    predUSE = []
-    for idea in X_test:
-        if not idea["STATUS"] == "unreviewed":
-            actual.append(idea["STATUS"] == "unusable")
-        else:
-            actual.append("spam" in idea["SPAM"])
-        if idea["DESCRIPTION"] == "" or idea["DESCRIPTION"] == []:
-            predUSE.append((0, 0.0))
-        else:
-            predUSE.append((USEClassifier.classify(useest, {"DESCRIPTION": idea["DESCRIPTION"]})))
-        idea["TRIGGERED"] = idea.get("TRIGGERED", [])
-
-
-    results = {"actual": actual, "USE": predUSE}
-    importDataHelper.writecsvfiledict("Data/firstTestrun/Results/USEtest/evaluationResults.csv", results.keys(), results)
-    return results
-
-
-def eval_USE():
-    challengedict = {
-        "TCO": list(importDataHelper.readcsvdata(variables.firstrunpath + variables.ideadbpath + "TCO.csv")),
-        "bionicRadar": list(
-            importDataHelper.readcsvdata(variables.firstrunpath + variables.ideadbpath + "bionicRadar.csv")),
-        "fabricDisplay": list(
-            importDataHelper.readcsvdata(variables.firstrunpath + variables.ideadbpath + "fabricDisplay.csv"))}
-    # Create Dict for numbers of filtered Duplicates in each Test
-    dupdict = {}
-    # Start Test for each Challenge
-    for key in challengedict.keys():
-        # Create List with ideas from other challenges to extend Trainingsdataset:
-        idealist = []
-        for key2 in challengedict.keys():
-            if key2 is not key:
-                idealist += challengedict[key2].copy()
-        X_train = list(importDataHelper.readcsvdata(variables.firstrunpath + variables.trainingideaspath + key + ".csv"))
-        X_test = list(importDataHelper.readcsvdata(variables.firstrunpath + variables.testideapath + "BeforeClassification" + key + ".csv"))
-        X_ndtrain = duplicateDetection.filterduplikates(X_train,
-                                                    "Data/firstTestrun/DuplicateResults/Trainingsdata/" + key + ".csv")
-        dupdict[key] = len(X_train) - len(X_ndtrain)
-
-        # Create Copys of Testset to avoid Changes in Testset while Testing
-        X_ndtest = X_test.copy()
-        idealist_test = X_test.copy()
-        idealist_nodups_test = X_test.copy()
-
-        # Train and test Classifier without duplicate detection and Extension
-        results = evaluate_system_use(X_train, X_test, challenge=key, plotname=key)
-        importDataHelper.writecsvfiledict(variables.firstrunpath + variables.testresultpath + key + ".csv",
-                                          results.keys(), results)
-        print("Done first set")
-
-        # Train and test Classifier with duplicate detection and without Extension
-        results2 = evaluate_system_use(X_ndtrain, X_ndtest, key, dups=True, plotname=key)
-        importDataHelper.writecsvfiledict("Data/firstTestrun/Results/USEtest/evaluationResultsNoDups" + key + ".csv",
-                                          results2.keys(), results2)
-        print("Challenge training done", key)
-
-        # remove Duplicate from extended Trainingsset
-        idealist_nodups = duplicateDetection.filterduplikates(idealist, variables.resultpath + "eval" + key + ".csv")
-        dupdict[key + " All"] = len(idealist) - len(idealist_nodups)
-
-        # Train and test Classifier without duplicate detection and with Extension
-        results = evaluate_system_use(idealist, idealist_test, plotname=key + "Erweitert")
-        importDataHelper.writecsvfiledict("Data/firstTestrun/Results/USEtest/evaluationAll" + key + ".csv",
-                                          results.keys(), results)
-        print("Done first set")
-        # Train and test Classifier with duplicate detection and Extension
-        results2 = evaluate_system_use(idealist_nodups, idealist_nodups_test, dups=True, plotname=key + "Erweitert")
-        importDataHelper.writecsvfiledict("Data/firstTestrun/Results/USEtest/evaluationResultsNoDupsAll" + key + ".csv",
-                                          results2.keys(), results2)
-        print("All training done", key)
-    print(dupdict)
-    importDataHelper.writecsvfiledict("Data/firstTestrun/Results/USEtest/dupNums.csv", dupdict.keys(), dupdict)
-
-
-def eval_newAll():
-    # Import all Ideas divided by Challenge:
-    challengedict = {"TCO": list(importDataHelper.readcsvdata(variables.firstrunpath + variables.ideadbpath +"TCO.csv")),
-                     "bionicRadar": list(importDataHelper.readcsvdata(variables.firstrunpath + variables.ideadbpath + "bionicRadar.csv")),
-                     "fabricDisplay": list(importDataHelper.readcsvdata(variables.firstrunpath + variables.ideadbpath + "fabricDisplay.csv"))}
-    # Create Dict for numbers of filtered Duplicates in each Test
-    dupdict = {}
-    # Start Test for each Challenge
-    for key in challengedict.keys():
-        # Create List with ideas from other challenges to extend Trainingsdataset:
-        idealist = []
-        for key2 in challengedict.keys():
-            if key2 is not key:
-                idealist += challengedict[key2].copy()
-        # Split Ideas for this challenge in test and traindataset
-        X_train, X_test = train_test_split(challengedict[key], test_size=0.33)
-        # Save Trainingsdata (with duplicate and without extension)
-        importDataHelper.writecsvfile(variables.firstrunpath + variables.trainingideaspath + key + ".csv",
-                                          X_train[0].keys(), X_train)
-        # Save Testdata
-        importDataHelper.writecsvfile(variables.firstrunpath + variables.testideapath +
-                                          "BeforeClassification" + key + ".csv", X_test[0].keys(), X_test)
-        print("Saved Data for", key)
-
-        idealist += X_train.copy()
-
-        # Create Trainings list without duplicate
-        X_ndtrain = duplicateDetection.filterduplikates(X_train, "Data/firstTestrun/DuplicateResults/Trainingsdata/" + key + ".csv")
-        dupdict[key] = len(X_train) - len(X_ndtrain)
-
-        # Create Copys of Testset to avoid Changes in Testset while Testing
-        X_ndtest = X_test.copy()
-        idealist_test = X_test.copy()
-        idealist_nodups_test = X_test.copy()
-
-        # Train and test Classifier without duplicate detection and Extension
-        results = evaluate_system(X_train, X_test, challenge=key, plotname=key)
-        importDataHelper.writecsvfiledict(variables.firstrunpath + variables.testresultpath + key + ".csv", results.keys(), results)
-        print("Done first set")
-
-        # Train and test Classifier with duplicate detection and without Extension
-        results2 = evaluate_system(X_ndtrain, X_ndtest, key, dups=True, plotname=key)
-        importDataHelper.writecsvfiledict("Data/ResultsAllNew/evaluationResultsNoDups" + key + ".csv", results2.keys(),
-                                          results2)
-        print("Challenge training done", key)
-
-        # remove Duplicate from extended Trainingsset
-        idealist_nodups = duplicateDetection.filterduplikates(idealist, variables.resultpath + "eval" + key + ".csv")
-        dupdict[key + " All"] = len(idealist) - len(idealist_nodups)
-
-        # Train and test Classifier without duplicate detection and with Extension
-        results = evaluate_system(idealist, idealist_test, plotname=key + "Erweitert")
-        importDataHelper.writecsvfiledict("Data/ResultsAllNew/evaluationAll" + key + ".csv", results.keys(), results)
-        print("Done first set")
-        # Train and test Classifier with duplicate detection and Extension
-        results2 = evaluate_system(idealist_nodups, idealist_nodups_test, dups=True, plotname=key + "Erweitert")
-        importDataHelper.writecsvfiledict("Data/ResultsAllNew/evaluationResultsNoDupsAll" + key + ".csv",
-                                          results2.keys(),
-                                          results2)
-        print("All training done", key)
-    print(dupdict)
-    importDataHelper.writecsvfiledict("Data/ResultsAllNew/dupNums.csv", dupdict.keys(), dupdict)
-
 def eval_all():
     challengedict = {"TCO": list(importDataHelper.readcsvdata("Data/DBs/ideaDB/TCO.csv")), "bionicRadar": list(importDataHelper.readcsvdata("Data/DBs/ideaDB/bionicRadar.csv")), "fabricDisplay": list(importDataHelper.readcsvdata("Data/DBs/ideaDB/fabricDisplay.csv"))}
     dupdict = {}
@@ -221,11 +59,8 @@ def evaluate_fun():
     print("Done")
 
 
-def evaluate_system(X_train, X_test, challenge=None, dups=False, plotname=None):
-    # prepare filtersystem
+def evaluate_system(X_train, X_test, challenge=None, dups=False):
     unigram_tagger, st = spamFilter.prepare_tagger()
-
-    # prepare data for the linear classifier (features) and neural net (data)
     features = {}
     data = {"DESCRIPTION": [], "Spam": []}
     for idea in X_train:
@@ -252,25 +87,14 @@ def evaluate_system(X_train, X_test, challenge=None, dups=False, plotname=None):
             data["Spam"].append(0)
 
     print("prepared")
-    # Train Bayes classificators
     bayes.trainbayes(X_train, challenge=challenge, delete=True, duplicates=dups)
     complexBayes.trainbayes(X_train, challenge=challenge, delete=True,  duplicates=dups)
 
     wordprobs = bayes.gettokenprobs(challenge=challenge,  duplicates=dups)
     comwordprobs = complexBayes.gettokenprobs(challenge=challenge,  duplicates=dups)
-    print("Bayes Training done")
 
     linClass, coeff = linearClassifier.train_linear_classifier(features)
-    # Plot ROC for Trainingsdata
-    if plotname is not None:
-        plot_lin_Classifier(features["Spam"], linClass.decision_function(pd.DataFrame(features).drop('Spam', axis=1)), plotname, dups)
-
-    if dups:
-        useest = USEClassifier.train_classifier_idealist(pd.DataFrame(data),
-                                                         "Data/firstTestrun/KlassifikatorData/" + plotname + "/Dups/")
-    else:
-        useest = USEClassifier.train_classifier_idealist(pd.DataFrame(data), "Data/firstTestrun/KlassifikatorData/" + plotname + "/")
-
+    useest = USEClassifier.train_classifier_idealist(pd.DataFrame(data))
     print(coeff)
 
     actual = []
@@ -439,23 +263,9 @@ def evaluate_results():
             print("Three Classifier")
             print("Precision: ", cmthree.PPV)
             print("Recall: ", cmthree.TPR, "\n")
-    sortedDict = {"Bayes": [], "complex Bayes": [], "lin Classifier": [], "Filtersystem": [], "USE": [],
-                  "Or Classifiers": [], "Two Classifiers": [], "Three Classifiers": [], "low avg": []}
-    for result in safelist:
-        sortedDict[result["Filter"]].append({"Data": result["Data"],
-                                             "population": result["population"],
-                                             "TN": result["TN"], "FP": result["FP"], "N": result["N"],
-                                             "FN": result["FN"], "TP": result["TP"], "P": result["P"],
-                                             "PositiveTest": result["PositiveTest"],
-                                             "NegativeTest": result["NegativeTest"],
-                                             "TPR": result["TPR"], "PPV": result["PPV"], "Acc": result["ACC"]})
 
-    for key in sortedDict:
-        if len(sortedDict[key]) > 0:
-            importDataHelper.writecsvfile(variables.firstrunpath + variables.testresultpath + "first/" + key + "ResultDict.csv",
-                                      sortedDict[key][0].keys(), sortedDict[key])
 
-    importDataHelper.writecsvfile(variables.firstrunpath + variables.testresultpath + "first/ResultDicts.csv", safelist[0].keys(), safelist)
+    importDataHelper.writecsvfile("Data/Results/Evaluation/extendNewResultDicts.csv", safelist[0].keys(), safelist)
 
 def plot_bayes_results():
     resultdict = import_results()
@@ -509,7 +319,6 @@ def plot_bayes_results():
         plt.legend(loc="best")
         plt.show()
 
-# y_test, y_score, challenge, dups
 def plot_lin_Classifier():
     resultdict = import_results()
     fpr_fabric = dict()
@@ -522,32 +331,92 @@ def plot_lin_Classifier():
     tpr_tco = dict()
     roc_auc_tco = dict()
     for key in resultdict.keys():
-        if key == "fabricresults":
-            linclasspred = [x for x in resultdict[key]["complexbayes"]]
-#            linclassprob = [x[1] for x in resultdict[key]["bayes"]]
-#            for i in range(len(linclasspred)):
-#                if not linclasspred[i]:
-#                    linclassprob[i] = 1 - linclassprob[i]
+        bayespred = [x >= 0.9 for x in resultdict[key]["bayes"]]
+        bayesprob = [x for x in resultdict[key]["bayes"]]
+        combayespred = [x >= 0.9 for x in resultdict[key]["complexbayes"]]
+        combayesprob = [x for x in resultdict[key]["complexbayes"]]
+        linclasspred = [x[0] == 1 for x in resultdict[key]["linCLassifier"]]
+        linclassprob = [x[1] for x in resultdict[key]["linCLassifier"]]
+        for i in range(len(linclasspred)):
+            if not linclasspred[i] and linclassprob[i] > 0.0:
+                linclassprob[i] = 1.0 - linclassprob[i]
+        filterpred = [x == 1 for x in evaluationHelper.get_filter_results(resultdict[key]["Filter"])]
+        usepred = [x[0] == 1 for x in resultdict[key]["USE"]]
+        useprob = [x[1] for x in resultdict[key]["USE"]]
+        for i in range(len(usepred)):
+            if not usepred[i]:
+                useprob[i] = 1.0 - useprob[i]
+        classor = []
+        classorprob = []
+        classtwo = []
+        classtwoprob = []
+        classthree = []
+        classthreeprob = []
+        for i in range(0, len(bayesprob)):
+            classor.append(bayespred[i] or combayespred[i] or linclasspred[i] or usepred[i])
+            classtwo.append((bayesprob[i] >= 0.9 and(combayesprob[i] >= 0.9 or linclasspred[i] or usepred[i])) or
+                            (combayesprob[i] >= 0.9 and (linclasspred[i] or usepred[i])) or
+                            (linclasspred[i] and usepred[i]))
+            classthree.append((bayesprob[i] >= 0.9 and combayesprob[i] >= 0.9 and (linclasspred[i] or usepred[i])) or
+                              (combayesprob[i] >= 0.9 and linclasspred[i] and usepred[i]) or
+                              (bayesprob[i] >= 0.9 and linclasspred[i] and usepred[i]))
+            classorprob.append(0.0)
+            classtwoprob.append(0.0)
+            classthreeprob.append(0.0)
+            j = 0
+            if bayespred[i]:
+                classorprob[i] += bayesprob[i]
+                classtwoprob[i] += bayesprob[i]
+                classthreeprob[i] += bayesprob[i]
+                j += 1
+            if combayespred[i]:
+                classorprob[i] += combayesprob[i]
+                classtwoprob[i] += combayesprob[i]
+                classthreeprob[i] += combayesprob[i]
+                j += 1
+            if linclasspred[i]:
+                classorprob[i] += linclassprob[i]
+                classtwoprob[i] += linclassprob[i]
+                classthreeprob[i] += linclassprob[i]
+                j += 1
+            if usepred[i]:
+                classorprob[i] += useprob[i]
+                classtwoprob[i] += useprob[i]
+                classthreeprob[i] += useprob[i]
+                j += 1
+            if j >= 3:
+                classthreeprob[i] = classthreeprob[i]/j
+                classtwoprob[i] = classtwoprob[i]/j
+                classorprob[i] = classorprob[i]/j
+            elif j >= 2:
+                classthreeprob[i] = 0.0
+                classtwoprob[i] = classtwoprob[i] / j
+                classorprob[i] = classorprob[i] / j
+            elif j >= 1:
+                classthreeprob[i] = 0.0
+                classtwoprob[i] = 0.0
+                classorprob[i] = classorprob[i] / j
+            else:
+                classthreeprob[i] = 0.0
+                classtwoprob[i] = 0.0
+                classorprob[i] = 0.0
+        if key == "fabricresults AllNoDups":
             for i in [0, 1]:
-                fpr_fabric[i], tpr_fabric[i], _ = roc_curve(resultdict[key]["actual"], linclasspred)
+                fpr_fabric[i], tpr_fabric[i], _ = roc_curve(resultdict[key]["actual"], classorprob)
                 roc_auc_fabric[i] = auc(fpr_fabric[i], tpr_fabric[i])
-        elif key == "tcoresults":
-            linclasspred = [x for x in resultdict[key]["complexbayes"]]
-#            linclassprob = [x[1] for x in resultdict[key]["bayes"]]
-#            for i in range(len(linclasspred)):
-#                if not linclasspred[i]:
-#                    linclassprob[i] = 1 - linclassprob[i]
+        elif key == "tcoresults AllNoDups":
+            for i in range(len(linclasspred)):
+                if not linclasspred[i] and linclassprob[i] > 0.0:
+                    linclassprob[i] = 1.0 - linclassprob[i]
             for i in [0, 1]:
-                fpr_tco[i], tpr_tco[i], _ = roc_curve(resultdict[key]["actual"], linclasspred)
+                fpr_tco[i], tpr_tco[i], _ = roc_curve(resultdict[key]["actual"], classorprob)
                 roc_auc_tco[i] = auc(fpr_tco[i], tpr_tco[i])
-        elif key == "bionicresults":
-            linclasspred = [x for x in resultdict[key]["complexbayes"]]
-#            linclassprob = [x[1] for x in resultdict[key]["bayes"]]
-#            for i in range(len(linclasspred)):
-#                if not linclasspred[i]:
-#                    linclassprob[i] = 1 - linclassprob[i]
+        elif key == "bionicresults AllNoDups":
+            for i in range(len(linclasspred)) :
+                if not linclasspred[i] and linclassprob[i] > 0.0:
+                    linclassprob[i] = 1.0 - linclassprob[i]
             for i in [0, 1]:
-                fpr_bionic[i], tpr_bionic[i], _ = roc_curve(resultdict[key]["actual"], linclasspred)
+                fpr_bionic[i], tpr_bionic[i], _ = roc_curve(resultdict[key]["actual"], classorprob)
                 roc_auc_bionic[i] = auc(fpr_bionic[i], tpr_bionic[i])
 
 #    fpr = dict()
@@ -559,9 +428,9 @@ def plot_lin_Classifier():
 
     plt.figure()
     lw = 2
-    plt.plot(fpr_tco[1], tpr_tco[1], color="darkorange", lw=lw, label="TCO" % roc_auc_tco[1] + " (area = %0.2f)" % roc_auc_tco[1])
-    plt.plot(fpr_bionic[1], tpr_bionic[1], color="navy", lw=lw, label="Bionic Radar" % roc_auc_bionic[1] + " (area = %0.2f)" % roc_auc_bionic[1])
-    plt.plot(fpr_fabric[1], tpr_fabric[1], color="green", lw=lw, label="Fabric Display" % roc_auc_fabric[1] + " (area = %0.2f)" % roc_auc_fabric[1])
+    plt.plot(fpr_tco[1], tpr_tco[1], color="darkorange", lw=lw, label="TCO" % roc_auc_tco[1] + " (AUC = %0.2f)" % roc_auc_tco[1])
+    plt.plot(fpr_bionic[1], tpr_bionic[1], color="navy", lw=lw, label="Bionic Radar" % roc_auc_bionic[1] + " (AUC = %0.2f)" % roc_auc_bionic[1])
+    plt.plot(fpr_fabric[1], tpr_fabric[1], color="green", lw=lw, label="Fabric Display" % roc_auc_fabric[1] + " (AUC = %0.2f)" % roc_auc_fabric[1])
     plt.plot([0, 1], [0, 1], color="cornflowerblue", lw=lw, linestyle='--')
     plt.xlim([0.0, 1.0])
     plt.ylim([0.0, 1.05])
@@ -570,38 +439,50 @@ def plot_lin_Classifier():
 #    plt.title(challenge)
     plt.legend(loc="lower right")
 #    if dups:
-    plt.savefig("Data/Plots/combayesTestres.png")
+    plt.savefig("Data/Plots/classOrAllDupTestres.png")
 #    else:
 #        plt.savefig(variables.firstrunpath + variables.plotpath + "Training/ROC_linClass_" + challenge + ".png")
+
+def get_filter_coeff():
+    resultdict = import_results()
+    for key in resultdict.keys():
+        if not "Dups" in key and not "All" in key:
+            filterdict = {}
+            i = 0
+            for filter in resultdict[key]["Filter"].keys():
+                filterdict[filter] = resultdict[key]["linClassCo"][i]
+                i += 1
+            print(key)
+            print(filterdict)
 
 
 def import_results():
     fabricresults = evaluationHelper.convertResults(list(
-        importDataHelper.readcsvdata(variables.firstrunpath + variables.testresultpath + "first/fabricDisplay.csv"))[0])
+        importDataHelper.readcsvdata("Data/ResultsAllNew/evaluationfabricDisplay.csv"))[0])
     fabricresultsNoDups = evaluationHelper.convertResults(list(
-        importDataHelper.readcsvdata(variables.firstrunpath + variables.testresultpath + "first/evaluationResultsNoDupsfabricDisplay.csv"))[0])
+        importDataHelper.readcsvdata("Data/ResultsAllNew/evaluationResultsNoDupsfabricDisplay.csv"))[0])
     fabricresultsNoDupsAll = evaluationHelper.convertResults(list(
-        importDataHelper.readcsvdata(variables.firstrunpath + variables.testresultpath + "first/evaluationResultsNoDupsAllfabricDisplay.csv"))[0])
+        importDataHelper.readcsvdata("Data/ResultsAllNew/evaluationResultsNoDupsAllfabricDisplay.csv"))[0])
     fabricresultsAll = evaluationHelper.convertResults(list(
-        importDataHelper.readcsvdata(variables.firstrunpath + variables.testresultpath + "first/evaluationAllfabricDisplay.csv"))[0])
+        importDataHelper.readcsvdata("Data/ResultsAllNew/evaluationAllfabricDisplay.csv"))[0])
 
     tcoresults = evaluationHelper.convertResults(list(
-        importDataHelper.readcsvdata(variables.firstrunpath + variables.testresultpath + "first/TCO.csv"))[0])
+        importDataHelper.readcsvdata("Data/ResultsAllNew/evaluationTCO.csv"))[0])
     tcoresultsNoDups = evaluationHelper.convertResults(list(
-        importDataHelper.readcsvdata(variables.firstrunpath + variables.testresultpath + "first/evaluationResultsNoDupsTCO.csv"))[0])
+        importDataHelper.readcsvdata("Data/ResultsAllNew/evaluationResultsNoDupsTCO.csv"))[0])
     tcoresultsNoDupsAll = evaluationHelper.convertResults(list(
-        importDataHelper.readcsvdata(variables.firstrunpath + variables.testresultpath + "first/evaluationResultsNoDupsAllTCO.csv"))[0])
+        importDataHelper.readcsvdata("Data/ResultsAllNew/evaluationResultsNoDupsAllTCO.csv"))[0])
     tcoresultsAll = evaluationHelper.convertResults(list(
-        importDataHelper.readcsvdata(variables.firstrunpath + variables.testresultpath + "first/evaluationAllTCO.csv"))[0])
+        importDataHelper.readcsvdata("Data/ResultsAllNew/evaluationAllTCO.csv"))[0])
 
     bionicresults = evaluationHelper.convertResults(list(
-        importDataHelper.readcsvdata(variables.firstrunpath + variables.testresultpath + "first/bionicRadar.csv"))[0])
+        importDataHelper.readcsvdata("Data/ResultsAllNew/evaluationbionicRadar.csv"))[0])
     bionicresultsNoDups = evaluationHelper.convertResults(list(
-        importDataHelper.readcsvdata(variables.firstrunpath + variables.testresultpath + "first/evaluationResultsNoDupsbionicRadar.csv"))[0])
+        importDataHelper.readcsvdata("Data/ResultsAllNew/evaluationResultsNoDupsbionicRadar.csv"))[0])
     bionicresultsNoDupsAll = evaluationHelper.convertResults(list(
-        importDataHelper.readcsvdata(variables.firstrunpath + variables.testresultpath + "first/evaluationResultsNoDupsAllbionicRadar.csv"))[0])
+        importDataHelper.readcsvdata("Data/ResultsAllNew/evaluationResultsNoDupsAllbionicRadar.csv"))[0])
     bionicresultsAll = evaluationHelper.convertResults(list(
-        importDataHelper.readcsvdata(variables.firstrunpath + variables.testresultpath + "first/evaluationAllbionicRadar.csv"))[0])
+        importDataHelper.readcsvdata("Data/ResultsAllNew/evaluationAllbionicRadar.csv"))[0])
 
     return {"fabricresults": fabricresults, "fabricresultsNoDups": fabricresultsNoDups,
                   "fabricresults All": fabricresultsAll, "fabricresults AllNoDups": fabricresultsNoDupsAll,

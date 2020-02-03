@@ -43,3 +43,7 @@ testideapath = "testideaDB/"
 
 # trainings ideas cross-validation
 trainingideaspath = "trainingsideaDB/"
+
+
+# Classifier model path
+classpath = "Data/Classifier"

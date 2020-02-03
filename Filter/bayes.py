@@ -24,7 +24,6 @@ def gethamtokens(challenge=None, duplicates=False):
     hamdict = {}
     for row in bayeshamwords:
         hamdict.update(row)
-    print("Old Ham Ideas: ", hamdict['<IdeaCount>'])
     return hamdict
 
 # get dict of spamword:
@@ -44,7 +43,6 @@ def getspamtokens(challenge=None, duplicates=False):
     spamdict = {}
     for row in bayesspamwords:
         spamdict.update(row)
-    print("Old Spam Ideas: ", spamdict['<IdeaCount>'])
     return spamdict
 
 # get dict of spamprobabilities for each word:
@@ -190,4 +188,3 @@ def trainbayes(idealist, challenge=None, delete=False, duplicates=False):
             probslist = calculateprobs(bayesspamwords, bayeshamwords, nspam, nham)
             importDataHelper.writecsvfiledict(variables.simplebayeschallengebasedpath + challenge + '/bayesTokenProbs.csv', probslist.keys(),
                                           probslist)
-    print(probslist)

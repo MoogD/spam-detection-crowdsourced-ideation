@@ -20,6 +20,15 @@ def train_linear_classifier(featurelist):
     print(clf.score(X, y))
     return clf, clf.coef_
 
+def load_classifier(coef, intercept, n_iter, classes):
+    clf = RidgeClassifier()
+    clf.coef_ = coef
+    clf.intercept_ = intercept
+    clf.n_iter_ = n_iter
+    clf.classes_ = [0, 1]
+    return clf
+
+
 def train_linear_classificator(challenge, new=False):
     if new:
         unigram_tagger, st = spamFilter.prepare_tagger()

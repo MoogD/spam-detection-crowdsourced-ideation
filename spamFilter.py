@@ -20,17 +20,18 @@ def classifyidea(idea, unigram_tagger, st):
     return idea
 
 def classify_and_get_idea(idea, unigram_tagger, st):
-    idea, featuredata = applyfilter(idea, unigram_tagger, st)
-    return idea, featuredata
+    idea, filter, featuredata = applyfilter(idea, unigram_tagger, st)
+    return idea, filter, featuredata
 
 def applyfilter(idea, unigram_tagger, st):
     isspam = False
     featuredata = {}
+    triggered = []
 ########################### apply textstructure filters: ###########################
     # check for number of characters in idea
     for count in charcount:
-        if textDataFilter.charcountlessfilter(idea['DESCRIPTION'], count):
-            idea['TRIGGERED'].append("Charcount")
+        if textDataFilter.charcountlessfilter(idea, count):
+            triggered.append("Charcount")
             featuredata["less Chars " + str(count)] = 1
             isspam = True
         else:
@@ -38,16 +39,16 @@ def applyfilter(idea, unigram_tagger, st):
 
     # check number of words
     for count in wordcount:
-        if textDataFilter.wordcountfilter(idea['DESCRIPTION'], count):
-            idea['TRIGGERED'].append("Wordcount")
+        if textDataFilter.wordcountfilter(idea, count):
+            triggered.append("Wordcount")
             isspam = True
             featuredata["less Words " + str(count)] = 1
         else:
             featuredata["less Words " + str(count)] = 0
 
     # filter ideas written in uppercase only
-    if textDataFilter.isuppercaseonly(idea['DESCRIPTION']):
-        idea['TRIGGERED'].append("Uppercase")
+    if textDataFilter.isuppercaseonly(idea):
+        triggered.append("Uppercase")
         isspam = True
         featuredata["uppercase only"] = 1
     else:
@@ -55,46 +56,46 @@ def applyfilter(idea, unigram_tagger, st):
 
 ########################### apply text content filters: ###########################
     # filter for special charsequences
-    if textContentFilter.charseqfilter(idea['DESCRIPTION']):
-        idea['TRIGGERED'].append("Charseq")
+    if textContentFilter.charseqfilter(idea):
+        triggered.append("Charseq")
         isspam = True
         featuredata["charseq"] = 1
     else:
         featuredata["charseq"] = 0
     # filter for special sentence structures:
-    if textContentFilter.sentencestructurefilter1(idea['DESCRIPTION']):
-        idea['TRIGGERED'].append("sentencestructure1")
+    if textContentFilter.sentencestructurefilter1(idea):
+        triggered.append("sentencestructure1")
         isspam = True
         featuredata["sentencestructure1"] = 1
     else:
         featuredata["sentencestructure1"] = 0
-    if textContentFilter.sentencestructurefilter2(idea['DESCRIPTION']):
-        idea['TRIGGERED'].append("sentencestructure2")
+    if textContentFilter.sentencestructurefilter2(idea):
+        triggered.append("sentencestructure2")
         isspam = True
         featuredata["sentencestructure2"] = 1
     else:
         featuredata["sentencestructure2"] = 0
-    if textContentFilter.sentencestructurefilter3(idea['DESCRIPTION']):
-        idea['TRIGGERED'].append("sentencestructure3")
+    if textContentFilter.sentencestructurefilter3(idea):
+        triggered.append("sentencestructure3")
         isspam = True
         featuredata["sentencestructure3"] = 1
     else:
         featuredata["sentencestructure3"] = 0
-    if textContentFilter.sentencestructurefilter4(idea['DESCRIPTION']):
-        idea['TRIGGERED'].append("sentencestructure4")
+    if textContentFilter.sentencestructurefilter4(idea):
+        triggered.append("sentencestructure4")
         isspam = True
         featuredata["sentencestructure4"] = 1
     else:
         featuredata["sentencestructure4"] = 0
-    if textContentFilter.isdefinition(idea['DESCRIPTION']):
-        idea['TRIGGERED'].append("definition")
+    if textContentFilter.isdefinition(idea):
+        triggered.append("definition")
         isspam = True
         featuredata["definition"] = 1
     else:
         featuredata["definition"] = 0
     # filter for person names
-    if textContentFilter.containsnames(idea['DESCRIPTION'], st):
-        idea['TRIGGERED'].append("containsName")
+    if textContentFilter.containsnames(idea, st):
+        triggered.append("containsName")
         isspam = True
         featuredata["person name"] = 1
     else:
@@ -103,30 +104,30 @@ def applyfilter(idea, unigram_tagger, st):
 ########################### apply NLP filter ###########################
 ########## Using Part-of-Speech tagger ##########
     # filter if idea contains atleast one noun
-    if textContentFilter.withoutnoun(idea['DESCRIPTION']):
-        idea['TRIGGERED'].append("without noun")
+    if textContentFilter.withoutnoun(idea):
+        triggered.append("without noun")
         isspam = True
         featuredata["no noun pos"] = 1
     else:
         featuredata["no noun pos"] = 0
     # filter if idea contains atleast one verb or adjective
-    if textContentFilter.withoutverb(idea['DESCRIPTION']) and textContentFilter.withoutadjective(idea['DESCRIPTION']):
-        idea['TRIGGERED'].append("without verb or adj")
+    if textContentFilter.withoutverb(idea) and textContentFilter.withoutadjective(idea):
+        triggered.append("without verb or adj")
         isspam = True
         featuredata["no verb or adj pos"] = 1
     else:
         featuredata["no verb or adj pos"] = 0
 ########## Using Statistical tagger trained on a corpus ##########
     # filter if idea contains atleast one noun
-    if textContentFilter.withoutnoununigram(idea['DESCRIPTION'], unigram_tagger):
-        idea['TRIGGERED'].append("without noun unigram")
+    if textContentFilter.withoutnoununigram(idea, unigram_tagger):
+        triggered.append("without noun unigram")
         isspam = True
         featuredata["no noun unigram"] = 1
     else:
         featuredata["no noun unigram"] = 0
     # filter if idea contains atleast one verb or adjective
-    if textContentFilter.withoutverbunigram(idea['DESCRIPTION'], unigram_tagger) and textContentFilter.withoutadjectiveunigram(idea['DESCRIPTION'], unigram_tagger):
-        idea['TRIGGERED'].append("without verb or adj unigram")
+    if textContentFilter.withoutverbunigram(idea, unigram_tagger) and textContentFilter.withoutadjectiveunigram(idea, unigram_tagger):
+        triggered.append("without verb or adj unigram")
         isspam = True
         featuredata["no verb or adj unigram"] = 1
     else:
@@ -138,7 +139,7 @@ def applyfilter(idea, unigram_tagger, st):
 #    else:
 #        idea['PREDICTION'] = "Ham"
 
-    return idea, featuredata
+    return idea, triggered, featuredata
 
 
 def prepare_tagger():

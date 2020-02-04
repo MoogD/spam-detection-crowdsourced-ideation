@@ -71,7 +71,7 @@ def train(idealist, challenge=None):
         print("Classifying Ideas with Filtersystem...")
         for idea in idealist:
             idea['TRIGGERED'] = []
-            idea, feature = spamFilter.classify_and_get_idea(idea, unigram_tagger, st)
+            idea2, feature = spamFilter.classify_and_get_idea(idea, unigram_tagger, st)
             data["DESCRIPTION"].append(idea["DESCRIPTION"])
             for ideakey in feature.keys():
                 if feature[ideakey] == 1:

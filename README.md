@@ -1,7 +1,7 @@
 # spam-detection-crowdsourced-ideation
 
 # Requirements
-You can find the required Packages in the requirements.txt file. To unstall you can use ``pip``. E.g:
+You can find the required Packages in the requirements.txt file. To install you can use ``pip``. E.g:
 ```
 pip install -r requirements.txt
 ```

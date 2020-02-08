@@ -1,7 +1,10 @@
 # spam-detection-crowdsourced-ideation
 
 # Requirements
-Will be updated soon
+You can find the required Packages in the requirements.txt file. To unstall you can use ``pip``. E.g:
+```
+pip install -r requirements.txt
+```
 
 # Usage
 To use the Spam detection execute the spamdetection.py file with a path to a csv or xml file with ideas:

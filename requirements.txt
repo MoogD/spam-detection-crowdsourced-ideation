@@ -1,4 +1,4 @@
-pip==20.0.2
+pip==21.1
 absl-py==0.8.1
 astor==0.8.0
 cachetools==3.1.1
